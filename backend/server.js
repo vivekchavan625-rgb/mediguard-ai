@@ -93,6 +93,18 @@ app.post("/api/workers/:id/records", (req, res) => {
     res.status(201).json(record);
 });
 
+app.get("/api/stats", (req, res) => {
+    const workers = readJSON(WORKERS_FILE);
+    const records = readJSON(RECORDS_FILE);
+    const thisMonth = new Date().toISOString().slice(0, 7);
+    res.json({
+        totalWorkers: workers.length,
+        totalRecords: records.length,
+        vaccinations: records.filter((r) => r.type === "Vaccination").length,
+        recordsThisMonth: records.filter((r) => (r.date || "").startsWith(thisMonth)).length,
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`MediGuard AI backend running at http://localhost:${PORT}`);
 });
