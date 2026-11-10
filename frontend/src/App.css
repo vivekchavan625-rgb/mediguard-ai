@@ -1,0 +1,113 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: Arial, sans-serif;
+  text-align: left;
+}
+
+.subtitle {
+  color: #666;
+  margin-top: -10px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.form button {
+  padding: 10px;
+  font-size: 16px;
+  background: #0a7d5a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.error {
+  color: #c0392b;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+}
+
+.list li {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.list li span {
+  color: #555;
+  font-size: 14px;
+}
+
+.form select,
+.form textarea {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  background: #f1faf6;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: #0a7d5a;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.date {
+  color: #888;
+  font-weight: normal;
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+.card {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid #0a7d5a;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.card p {
+  margin: 4px 0 6px;
+  color: #555;
+  font-size: 14px;
+}
+
+.card small {
+  color: #888;
+  word-break: break-all;
+}
