@@ -1,12 +1,27 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// Dynamic CORS configuration supporting environment variable
+const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",").map((s) => s.trim())
+    : ["http://localhost:5173", "http://127.0.0.1:5173"];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`CORS origin '${origin}' not allowed by policy`));
+        }
+    },
+    credentials: true,
+}));
 app.use(express.json());
 
 // ---------- Storage (JSON files in backend/data/) ----------
@@ -31,6 +46,12 @@ const nextId = (items) =>
 
 const findWorker = (id) =>
     readJSON(FILES.workers).find((w) => w.id === Number(id));
+
+// Strip sensitive internal fields before sending worker data to clients
+function sanitizeWorker(w) {
+    const { emergencyToken, emergencyTokenRevoked, ...safe } = w;
+    return safe;
+}
 
 // ---------- Audit log ----------
 function logAudit(req, action, workerId, details = "", dedupeMs = 0) {
@@ -76,12 +97,14 @@ function cleanWorker(body) {
         }
     }
 
-    const phone = text(body.phone).replace(/\s/g, "");
+    const rawPhone = text(body.phone).replace(/[\s-]/g, "");
+    const phone = rawPhone.replace(/^(\+91|0)/, "");
     if (phone && !/^\d{10}$/.test(phone)) {
         return { error: "Phone number must be 10 digits" };
     }
 
-    const emergencyPhone = text(body.emergencyPhone).replace(/\s/g, "");
+    const rawEmergency = text(body.emergencyPhone).replace(/[\s-]/g, "");
+    const emergencyPhone = rawEmergency.replace(/^(\+91|0)/, "");
     if (emergencyPhone && !/^\d{10}$/.test(emergencyPhone)) {
         return { error: "Emergency contact phone must be 10 digits" };
     }
@@ -136,14 +159,14 @@ app.get("/api/stats", (req, res) => {
 
 // ---------- Workers ----------
 app.get("/api/workers", (req, res) => {
-    res.json(readJSON(FILES.workers).reverse()); // newest first
+    res.json(readJSON(FILES.workers).reverse().map(sanitizeWorker)); // newest first, tokens stripped
 });
 
 app.get("/api/workers/:id", (req, res) => {
     const worker = findWorker(req.params.id);
     if (!worker) return res.status(404).json({ error: "Worker not found" });
     logAudit(req, "worker_viewed", worker.id, "", 5000);
-    res.json(worker);
+    res.json(sanitizeWorker(worker));
 });
 
 app.post("/api/workers", (req, res) => {
@@ -159,22 +182,33 @@ app.post("/api/workers", (req, res) => {
     workers.push(worker);
     writeJSON(FILES.workers, workers);
     logAudit(req, "worker_created", worker.id, worker.name);
-    res.status(201).json(worker);
+    res.status(201).json(sanitizeWorker(worker));
 });
 
-// Minimal data for the QR emergency card (no health history)
+// Disabled: unauthenticated access to emergency tokens and worker PII by predictable worker ID is not permitted
 app.get("/api/workers/:id/emergency", (req, res) => {
-    const w = findWorker(req.params.id);
-    if (!w) return res.status(404).json({ error: "Worker not found" });
-    logAudit(req, "emergency_viewed", w.id, "", 5000);
-    res.json({
-        id: w.id,
-        name: w.name,
-        age: w.age,
-        bloodGroup: w.bloodGroup || "",
-        allergies: w.allergies || "",
-        emergencyName: w.emergencyName || "",
-        emergencyPhone: w.emergencyPhone || "",
+    res.status(501).json({
+        error: "Emergency card viewing is disabled until hospital authentication is implemented.",
+    });
+});
+
+// Disabled: public emergency triage endpoint is disabled until authentication, consent, and secure token management are implemented
+app.get("/api/emergency/:token", (req, res) => {
+    res.status(501).json({
+        error: "Public emergency endpoint is disabled until authentication, consent, and secure token management are implemented.",
+    });
+});
+
+// QR token management endpoints (Disabled until server-side hospital authentication & RBAC are implemented)
+app.post("/api/workers/:id/emergency-token/revoke", (req, res) => {
+    res.status(501).json({
+        error: "QR token revocation is disabled until server-side hospital authentication and role-based access control (RBAC) are implemented.",
+    });
+});
+
+app.post("/api/workers/:id/emergency-token/regenerate", (req, res) => {
+    res.status(501).json({
+        error: "QR token regeneration is disabled until server-side hospital authentication and role-based access control (RBAC) are implemented.",
     });
 });
 
@@ -221,6 +255,17 @@ app.get("/api/workers/:id/audit", (req, res) => {
         .reverse()
         .slice(0, 20);
     res.json(entries);
+});
+
+// ---------- Global Error Handler ----------
+// Prevents internal stack traces or filesystem paths from leaking to clients
+app.use((err, req, res, next) => {
+    const isCors = err.message && err.message.includes("CORS");
+    const status = isCors ? 403 : (err.status || 500);
+    const message = isCors
+        ? "CORS request rejected: origin not permitted"
+        : "Internal server error";
+    res.status(status).json({ error: message });
 });
 
 app.listen(PORT, () => {

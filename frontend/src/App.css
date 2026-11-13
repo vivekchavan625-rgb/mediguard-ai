@@ -190,6 +190,21 @@
   line-height: 0;
 }
 
+.qr-revoked-placeholder {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fde8e8;
+  color: #9b1c1c;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 8px;
+  text-align: center;
+  line-height: 1.2;
+}
+
 .idcard h1 {
   margin: 4px 0 6px;
   font-size: 26px;
@@ -370,4 +385,972 @@
   font-size: 16px;
   font-weight: 800;
   letter-spacing: 1px;
+}
+
+
+/* ---------- Emergency Triage View Styling ---------- */
+.emergency-container {
+  min-height: 100vh;
+  background: #fdf8f7;
+  color: #1f2937;
+  font-family: "Segoe UI", Arial, sans-serif;
+  padding-bottom: 40px;
+}
+
+.emergency-topbar {
+  background: linear-gradient(120deg, #742a2a 0%, #9b2c2c 50%, #c53030 100%);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(155, 44, 44, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.emergency-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.emergency-logo-svg {
+  width: 38px;
+  height: 38px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.emergency-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.emergency-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.emergency-title em {
+  font-style: normal;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  padding: 0 6px;
+  margin-left: 6px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.emergency-tagline {
+  font-size: 11px;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.emergency-status-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.emergency-main {
+  max-width: 680px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+
+.emergency-nav-bar {
+  margin-bottom: 14px;
+}
+
+.emergency-back-btn {
+  background: none;
+  border: 1px solid #cbd5e0;
+  background: #fff;
+  color: #4a5568;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.emergency-back-btn:hover {
+  background: #edf2f7;
+  color: #1a202c;
+}
+
+.emergency-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fed7d7;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.emergency-banner-alert {
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: #9b2c2c;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.emergency-profile-section {
+  border-bottom: 1px solid #edf2f7;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+}
+
+.emergency-profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.emergency-worker-name {
+  margin: 0 0 6px 0;
+  font-size: 26px;
+  color: #1a202c;
+}
+
+.emergency-worker-meta {
+  margin: 0 0 6px 0;
+  color: #4a5568;
+  font-size: 15px;
+}
+
+.emergency-work-loc {
+  margin: 0;
+  color: #718096;
+  font-size: 14px;
+}
+
+.emergency-blood-badge {
+  background: #e53e3e;
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 16px;
+  text-align: center;
+  min-width: 100px;
+  box-shadow: 0 4px 10px rgba(229, 62, 62, 0.3);
+  flex-shrink: 0;
+}
+
+.emergency-blood-badge .blood-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  opacity: 0.9;
+}
+
+.emergency-blood-badge .blood-value {
+  display: block;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.emergency-alert-section {
+  margin-bottom: 20px;
+}
+
+.allergy-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.allergy-box.has-allergy {
+  background: #fff5f5;
+  border: 1px solid #fc8181;
+  color: #9b2c2c;
+}
+
+.allergy-box.has-allergy strong {
+  color: #c53030;
+}
+
+.allergy-box.no-allergy {
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  color: #22543d;
+}
+
+.allergy-box.no-allergy strong {
+  color: #276749;
+}
+
+.allergy-box p {
+  margin: 4px 0 0;
+  font-size: 15px;
+}
+
+.allergy-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.emergency-contact-section {
+  margin-bottom: 24px;
+}
+
+.emergency-contact-section h2 {
+  font-size: 16px;
+  color: #2d3748;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.emergency-contact-card {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contact-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.contact-phone-label {
+  font-size: 12px;
+  color: #718096;
+}
+
+.contact-phone-number {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2b6cb0;
+}
+
+.emergency-call-action {
+  background: #2b6cb0;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(43, 108, 176, 0.25);
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.emergency-call-action:hover {
+  background: #2c5282;
+  color: #fff;
+}
+
+.emergency-call-action .call-icon {
+  font-size: 16px;
+}
+
+.emergency-no-phone {
+  font-size: 13px;
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.emergency-privacy-notice {
+  background: #f7fafc;
+  border-top: 1px solid #edf2f7;
+  padding-top: 16px;
+  font-size: 12px;
+  color: #718096;
+  line-height: 1.5;
+}
+
+.emergency-privacy-notice .privacy-badge {
+  font-weight: 700;
+  color: #4a5568;
+  margin-bottom: 4px;
+}
+
+.emergency-privacy-notice p {
+  margin: 0;
+}
+
+.emergency-loading-card,
+.emergency-error-card {
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.emergency-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 16px;
+  border: 4px solid #fed7d7;
+  border-top: 4px solid #c53030;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.emergency-error-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.emergency-error-card h2 {
+  color: #9b2c2c;
+  margin: 0 0 8px;
+}
+
+.emergency-error-desc {
+  color: #4a5568;
+  margin-bottom: 24px;
+}
+
+.emergency-helpline-box {
+  background: #fff5f5;
+  border: 1px dashed #feb2b2;
+  border-radius: 10px;
+  padding: 14px;
+  display: inline-block;
+  text-align: left;
+  font-size: 14px;
+}
+
+.emergency-helpline-box h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #9b2c2c;
+}
+
+.emergency-helpline-box p {
+  margin: 4px 0;
+}
+
+.emergency-helpline-box a {
+  color: #c53030;
+  text-decoration: underline;
+}
+
+/* Dashboard QR Management Controls */
+.qr-token-actions {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-secondary {
+  background: #edf2f7;
+  color: #2d3748;
+  border: 1px solid #cbd5e0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.btn-danger-outline {
+  background: #fff;
+  color: #c53030;
+  border: 1px solid #feb2b2;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger-outline:hover {
+  background: #fff5f5;
+}
+
+.btn-preview {
+  background: #2b6cb0;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-preview:hover {
+  background: #2c5282;
+}
+
+.qr-revoked-warning {
+  margin-top: 6px;
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: #c53030;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.qr-auth-notice {
+  margin-top: 8px;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  color: #4a5568;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.qr-token-notice {
+  margin-top: 6px;
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  color: #2b6cb0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .emergency-profile-header {
+    flex-direction: column;
+  }
+  .emergency-blood-badge {
+    width: 100%;
+  }
+  .emergency-contact-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .emergency-call-action {
+    justify-content: center;
+  }
+}
+
+
+/* ---------- Emergency Triage View Styling ---------- */
+.emergency-container {
+  min-height: 100vh;
+  background: #fdf8f7;
+  color: #1f2937;
+  font-family: "Segoe UI", Arial, sans-serif;
+  padding-bottom: 40px;
+}
+
+.emergency-topbar {
+  background: linear-gradient(120deg, #742a2a 0%, #9b2c2c 50%, #c53030 100%);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(155, 44, 44, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.emergency-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.emergency-logo-svg {
+  width: 38px;
+  height: 38px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.emergency-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.emergency-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.emergency-title em {
+  font-style: normal;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  padding: 0 6px;
+  margin-left: 6px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.emergency-tagline {
+  font-size: 11px;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.emergency-status-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.emergency-main {
+  max-width: 680px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+
+.emergency-nav-bar {
+  margin-bottom: 14px;
+}
+
+.emergency-back-btn {
+  background: none;
+  border: 1px solid #cbd5e0;
+  background: #fff;
+  color: #4a5568;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.emergency-back-btn:hover {
+  background: #edf2f7;
+  color: #1a202c;
+}
+
+.emergency-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fed7d7;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.emergency-banner-alert {
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: #9b2c2c;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.emergency-profile-section {
+  border-bottom: 1px solid #edf2f7;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+}
+
+.emergency-profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.emergency-worker-name {
+  margin: 0 0 6px 0;
+  font-size: 26px;
+  color: #1a202c;
+}
+
+.emergency-worker-meta {
+  margin: 0 0 6px 0;
+  color: #4a5568;
+  font-size: 15px;
+}
+
+.emergency-work-loc {
+  margin: 0;
+  color: #718096;
+  font-size: 14px;
+}
+
+.emergency-blood-badge {
+  background: #e53e3e;
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 16px;
+  text-align: center;
+  min-width: 100px;
+  box-shadow: 0 4px 10px rgba(229, 62, 62, 0.3);
+  flex-shrink: 0;
+}
+
+.emergency-blood-badge .blood-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  opacity: 0.9;
+}
+
+.emergency-blood-badge .blood-value {
+  display: block;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.emergency-alert-section {
+  margin-bottom: 20px;
+}
+
+.allergy-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.allergy-box.has-allergy {
+  background: #fff5f5;
+  border: 1px solid #fc8181;
+  color: #9b2c2c;
+}
+
+.allergy-box.has-allergy strong {
+  color: #c53030;
+}
+
+.allergy-box.no-allergy {
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  color: #22543d;
+}
+
+.allergy-box.no-allergy strong {
+  color: #276749;
+}
+
+.allergy-box p {
+  margin: 4px 0 0;
+  font-size: 15px;
+}
+
+.allergy-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.emergency-contact-section {
+  margin-bottom: 24px;
+}
+
+.emergency-contact-section h2 {
+  font-size: 16px;
+  color: #2d3748;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.emergency-contact-card {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contact-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.contact-phone-label {
+  font-size: 12px;
+  color: #718096;
+}
+
+.contact-phone-number {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2b6cb0;
+}
+
+.emergency-call-action {
+  background: #2b6cb0;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(43, 108, 176, 0.25);
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.emergency-call-action:hover {
+  background: #2c5282;
+  color: #fff;
+}
+
+.emergency-call-action .call-icon {
+  font-size: 16px;
+}
+
+.emergency-no-phone {
+  font-size: 13px;
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.emergency-privacy-notice {
+  background: #f7fafc;
+  border-top: 1px solid #edf2f7;
+  padding-top: 16px;
+  font-size: 12px;
+  color: #718096;
+  line-height: 1.5;
+}
+
+.emergency-privacy-notice .privacy-badge {
+  font-weight: 700;
+  color: #4a5568;
+  margin-bottom: 4px;
+}
+
+.emergency-privacy-notice p {
+  margin: 0;
+}
+
+.emergency-loading-card,
+.emergency-error-card {
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.emergency-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 16px;
+  border: 4px solid #fed7d7;
+  border-top: 4px solid #c53030;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.emergency-error-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.emergency-error-card h2 {
+  color: #9b2c2c;
+  margin: 0 0 8px;
+}
+
+.emergency-error-desc {
+  color: #4a5568;
+  margin-bottom: 24px;
+}
+
+.emergency-helpline-box {
+  background: #fff5f5;
+  border: 1px dashed #feb2b2;
+  border-radius: 10px;
+  padding: 14px;
+  display: inline-block;
+  text-align: left;
+  font-size: 14px;
+}
+
+.emergency-helpline-box h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #9b2c2c;
+}
+
+.emergency-helpline-box p {
+  margin: 4px 0;
+}
+
+.emergency-helpline-box a {
+  color: #c53030;
+  text-decoration: underline;
+}
+
+/* Dashboard QR Management Controls */
+.qr-token-actions {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-secondary {
+  background: #edf2f7;
+  color: #2d3748;
+  border: 1px solid #cbd5e0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.btn-danger-outline {
+  background: #fff;
+  color: #c53030;
+  border: 1px solid #feb2b2;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger-outline:hover {
+  background: #fff5f5;
+}
+
+.btn-preview {
+  background: #2b6cb0;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-preview:hover {
+  background: #2c5282;
+}
+
+.qr-revoked-warning {
+  margin-top: 6px;
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: #c53030;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.qr-auth-notice {
+  margin-top: 8px;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  color: #4a5568;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.qr-token-notice {
+  margin-top: 6px;
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  color: #2b6cb0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .emergency-profile-header {
+    flex-direction: column;
+  }
+  .emergency-blood-badge {
+    width: 100%;
+  }
+  .emergency-contact-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .emergency-call-action {
+    justify-content: center;
+  }
 }

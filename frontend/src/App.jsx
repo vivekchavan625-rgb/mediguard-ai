@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
 import "./App.css";
 
-const API = "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 const RECORD_TYPES = ["Checkup", "Vaccination", "Illness", "Medication", "Lab test"];
 const BADGE = {
   Checkup: "blue",
@@ -30,6 +29,8 @@ const ACTION_LABELS = {
   worker_viewed: "Profile viewed",
   record_added: "Health record added",
   emergency_viewed: "Emergency card viewed",
+  emergency_token_revoked: "QR pass revoked",
+  emergency_token_regenerated: "New QR pass issued",
 };
 const BACKEND_ERROR = "Cannot reach the backend. Is it running on port 5000?";
 
@@ -82,8 +83,6 @@ function WorkerDetail({ worker, onBack }) {
   const [activity, setActivity] = useState([]);
   const [form, setForm] = useState({ date: today(), type: "Checkup", hospital: "", notes: "" });
   const [error, setError] = useState("");
-
-  const cardLink = `${window.location.origin}/?worker=${worker.id}`;
 
   const loadRecords = async () => {
     const res = await fetch(`${API}/workers/${worker.id}/records`);
@@ -168,7 +167,9 @@ function WorkerDetail({ worker, onBack }) {
 
         <div className="idcard">
           <div className="qr">
-            <QRCodeSVG value={cardLink} size={120} />
+            <div className="qr-revoked-placeholder">
+              <span>🔒 QR Protected</span>
+            </div>
           </div>
           <div>
             <small>MEDIGUARD HEALTH CARD</small>
@@ -187,7 +188,9 @@ function WorkerDetail({ worker, onBack }) {
             </p>
             {w.abhaId && <p>ABHA ID: {w.abhaId}</p>}
             {w.workLocation && <p>Works at: {w.workLocation}</p>}
-            <p className="link">{cardLink}</p>
+            <div className="qr-auth-notice">
+              🔒 QR card viewing is temporarily unavailable. Hospital authentication is required.
+            </div>
           </div>
         </div>
 
@@ -275,12 +278,6 @@ function App() {
   useEffect(() => {
     loadWorkers();
     loadStats();
-  }, []);
-
-  // Opens a worker directly when the page is opened from a QR link (?worker=ID)
-  useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("worker");
-    if (id) setSelected({ id: Number(id) });
   }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
