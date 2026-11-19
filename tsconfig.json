@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@mediguard/shared/*": ["shared/src/*"],
+      "@mediguard/frontend/*": ["frontend/src/*"],
+      "@mediguard/backend/*": ["backend/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build"]
+}
