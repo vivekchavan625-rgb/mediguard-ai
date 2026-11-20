@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { pool } from '../db';
+import { client } from '../db';
 
 export async function healthCheck(req: Request, res: Response): Promise<void> {
   try {
-    await pool.query('SELECT 1');
+    await client.query('SELECT 1');
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),

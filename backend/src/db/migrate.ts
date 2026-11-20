@@ -1,18 +1,15 @@
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { db, pool } from './index';
+import { initializeDb } from './index';
 
 async function runMigrations() {
-  console.log('🔄 Running database migrations...');
+  console.log('🔄 Initializing database schema...');
 
   try {
-    await migrate(db, { migrationsFolder: './drizzle' });
-    console.log('✅ Migrations completed successfully');
+    await initializeDb();
+    console.log('✅ Database schema initialized successfully');
   } catch (error) {
-    console.error('❌ Migration failed:', error);
-    throw error;
-  } finally {
-    await pool.end();
+    console.error('❌ Schema initialization failed:', error);
+    process.exit(1);
   }
 }
 
-runMigrations().catch(() => process.exit(1));
+runMigrations();
