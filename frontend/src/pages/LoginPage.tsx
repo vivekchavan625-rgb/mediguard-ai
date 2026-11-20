@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import api from '../utils/api';
+import api, { ApiResponse } from '../utils/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
@@ -42,7 +42,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response = await api.post<{ data: { user: any; accessToken: string; refreshToken: string; expiresIn: number } }>('/auth/login', data);
+      const response = await api.post<ApiResponse<{ user: any; accessToken: string; refreshToken: string; expiresIn: number }>>('/auth/login', data);
 
       if (response.data.success && response.data.data) {
         const { user, accessToken, refreshToken, expiresIn } = response.data.data;
@@ -129,9 +129,7 @@ export default function LoginPage() {
         <CardFooter className="justify-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?{' '}
-            <Navigate to="/register" replace>
-              <a className="text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium">Sign up</a>
-            </Navigate>
+            <Link to="/register" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium">Sign up</Link>
           </p>
         </CardFooter>
       </Card>

@@ -26,7 +26,7 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
   const { page, limit, sortBy, sortOrder, startDate, endDate, status, doctorId, patientId } = paginationSchema.parse(req.query);
   const offset = (page - 1) * limit;
 
-  let whereClause = sql`1=1`;
+  let whereClause: any = sql`1=1`;
 
   if (startDate) {
     whereClause = and(whereClause, gte(appointments.scheduledAt, new Date(startDate)))!;
@@ -35,7 +35,7 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
     whereClause = and(whereClause, lte(appointments.scheduledAt, new Date(endDate)))!;
   }
   if (status) {
-    whereClause = and(whereClause, eq(appointments.status, status))!;
+    whereClause = and(whereClause, eq(appointments.status, status as any))!;
   }
   if (doctorId) {
     whereClause = and(whereClause, eq(appointments.doctorId, doctorId))!;
@@ -56,8 +56,8 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
 
   const orderBy = sortBy
     ? sortOrder === 'desc'
-      ? desc(appointments[sortBy as keyof typeof appointments])
-      : asc(appointments[sortBy as keyof typeof appointments])
+      ? desc((appointments as any)[sortBy])
+      : asc((appointments as any)[sortBy])
     : asc(appointments.scheduledAt);
 
   const [appointmentList, totalResult] = await Promise.all([
@@ -99,7 +99,7 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
 
   const total = totalResult[0]?.count || 0;
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: appointmentList,
     meta: {
@@ -109,6 +109,7 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
       totalPages: Math.ceil(total / limit),
     },
   });
+  return;
 }));
 
 router.get('/:id', asyncHandler(async (req: AuthRequest, res) => {
@@ -151,7 +152,8 @@ router.get('/:id', asyncHandler(async (req: AuthRequest, res) => {
     throw new AppError(404, 'NOT_FOUND', 'Appointment not found');
   }
 
-  res.json({ success: true, data: appointment });
+  res.status(200).json({ success: true, data: appointment });
+  return;
 }));
 
 router.post('/', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -161,9 +163,10 @@ router.post('/', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (re
     ...data,
     scheduledAt: new Date(data.scheduledAt),
     doctorId: req.user?.role === 'doctor' ? req.user.id : data.doctorId,
-  }).returning();
+  } as any).returning();
 
   res.status(201).json({ success: true, data: appointment });
+  return;
 }));
 
 router.patch('/:id', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -183,7 +186,8 @@ router.patch('/:id', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async
     throw new AppError(404, 'NOT_FOUND', 'Appointment not found');
   }
 
-  res.json({ success: true, data: appointment });
+  res.status(200).json({ success: true, data: appointment });
+  return;
 }));
 
 router.delete('/:id', requireRole('admin', 'doctor'), asyncHandler(async (req: AuthRequest, res) => {
@@ -191,7 +195,8 @@ router.delete('/:id', requireRole('admin', 'doctor'), asyncHandler(async (req: A
 
   await db.delete(appointments).where(eq(appointments.id, id));
 
-  res.json({ success: true, message: 'Appointment deleted' });
+  res.status(200).json({ success: true, message: 'Appointment deleted' });
+  return;
 }));
 
 // Get appointments for calendar view
@@ -239,7 +244,8 @@ router.get('/calendar/view', asyncHandler(async (req: AuthRequest, res) => {
     .where(whereClause)
     .orderBy(asc(appointments.scheduledAt));
 
-  res.json({ success: true, data: appointmentList });
+  res.status(200).json({ success: true, data: appointmentList });
+  return;
 }));
 
 export { router as appointmentRoutes };

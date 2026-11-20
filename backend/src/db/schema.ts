@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, date, integer, boolean, jsonb, enum as pgEnum, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, date, integer, boolean, jsonb, pgEnum, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const userRoleEnum = pgEnum('user_role', ['admin', 'doctor', 'nurse', 'patient']);
@@ -41,6 +41,7 @@ export const patients = pgTable('patients', {
   emergencyContact: jsonb('emergency_contact'),
   medicalRecordNumber: varchar('medical_record_number', { length: 50 }).notNull().unique(),
   bloodType: bloodTypeEnum('blood_type'),
+  isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 }, (table) => ({
@@ -213,7 +214,7 @@ export const vitalSignsRelations = relations(vitalSigns, ({ one }) => ({
   patient: one(patients, { fields: [vitalSigns.patientId], references: [patients.id] }),
 }));
 
-export const appointmentsRelations = relations(appointments, ({ one }) => ({
+export const appointmentsRelations = relations(appointments, ({ one, many }) => ({
   patient: one(patients, { fields: [appointments.patientId], references: [patients.id] }),
   doctor: one(users, { fields: [appointments.doctorId], references: [users.id], relationName: 'doctor' }),
   medicalRecords: many(medicalRecords),

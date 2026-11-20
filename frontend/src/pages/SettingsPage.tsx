@@ -3,11 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuthStore } from '../store/authStore';
-import api from '../utils/api';
+import api, { ApiResponse } from '../utils/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Label } from '../components/ui/Label';
+import { Badge } from '../components/ui/Badge';
 import { Switch } from '../components/ui/Switch';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/Tabs';
 import { User, Shield, Bell, Palette, Database, Key, Mail, Loader2, Save, Eye, EyeOff } from 'lucide-react';
@@ -107,7 +108,7 @@ export default function SettingsPage() {
     setSaveSuccess(null);
 
     try {
-      const response = await api.put<{ data: any }>('/users/profile', data);
+      const response = await api.put<ApiResponse<any>>('/users/profile', data);
       if (response.data.success && response.data.data) {
         updateProfile(response.data.data);
         setSaveSuccess('Profile updated successfully');
@@ -125,7 +126,7 @@ export default function SettingsPage() {
     setSaveSuccess(null);
 
     try {
-      await api.put('/auth/password', {
+      await api.put<ApiResponse<void>>('/auth/password', {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       });
@@ -144,7 +145,7 @@ export default function SettingsPage() {
     setSaveSuccess(null);
 
     try {
-      await api.put('/users/notifications', data);
+      await api.put<ApiResponse<void>>('/users/notifications', data);
       setSaveSuccess('Notification preferences saved');
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Failed to save preferences');
@@ -159,7 +160,7 @@ export default function SettingsPage() {
     setSaveSuccess(null);
 
     try {
-      await api.put('/users/appearance', data);
+      await api.put<ApiResponse<void>>('/users/appearance', data);
       setSaveSuccess('Appearance settings saved');
       // Apply theme immediately
       if (data.theme === 'dark' || (data.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -205,7 +206,7 @@ export default function SettingsPage() {
       )}
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} className="flex items-center justify-center gap-2">
@@ -661,4 +662,4 @@ export default function SettingsPage() {
 }
 
 // Need to import missing icons
-import { Sun, Moon, Monitor, Smartphone, Badge } from 'lucide-react';
+import { Sun, Moon, Monitor, Smartphone, Brain, Calendar } from 'lucide-react';

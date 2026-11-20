@@ -90,7 +90,7 @@ router.get('/dashboard', asyncHandler(async (req: AuthRequest, res) => {
         END`),
   ]);
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: {
       summary: {
@@ -113,6 +113,7 @@ router.get('/dashboard', asyncHandler(async (req: AuthRequest, res) => {
       },
     },
   });
+  return;
 }));
 
 router.get('/vital-signs-trends', asyncHandler(async (req: AuthRequest, res) => {
@@ -164,7 +165,8 @@ router.get('/vital-signs-trends', asyncHandler(async (req: AuthRequest, res) => 
     bmi: d.bmi ? d.bmi / 10 : null,
   }));
 
-  res.json({ success: true, data: formattedData });
+  res.status(200).json({ success: true, data: formattedData });
+  return;
 }));
 
 router.get('/ai-performance', asyncHandler(async (req: AuthRequest, res) => {
@@ -190,7 +192,7 @@ router.get('/ai-performance', asyncHandler(async (req: AuthRequest, res) => {
       .where(and(gte(aiAnalyses.createdAt, start), lte(aiAnalyses.createdAt, end), sql`${aiAnalyses.confidence} IS NOT NULL`)),
   ]);
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: {
       byType: byType.map((t) => ({ name: t.type, value: t.count })),
@@ -198,6 +200,7 @@ router.get('/ai-performance', asyncHandler(async (req: AuthRequest, res) => {
       averageConfidence: Math.round(avgConfidence[0]?.avgConfidence || 0),
     },
   });
+  return;
 }));
 
 export { router as analyticsRoutes };

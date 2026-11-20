@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
 import { patients, allergies, conditions, medications, vitalSigns, users } from '../db/schema';
-import { eq, and, desc, asc, ilike, or, count, sql } from 'drizzle-orm';
+import { eq, and, desc, asc, ilike, or, count, sql, inArray, gte, lte } from 'drizzle-orm';
 import { asyncHandler, AppError } from '../middleware/errorHandler';
 import { AuthRequest, requireRole } from '../middleware/auth';
 import { paginationSchema } from '@mediguard/shared/schemas';
@@ -69,7 +69,10 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
   const { page, limit, sortBy, sortOrder, search } = paginationSchema.parse(req.query);
   const offset = (page - 1) * limit;
 
-  let whereClause = eq(patients.isActive, true);
+  let whereClause: any = sql`1=1`;
+
+  // Always filter for active patients
+  whereClause = and(whereClause, eq(patients.isActive, true))!;
 
   if (search) {
     whereClause = and(
@@ -85,8 +88,8 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
 
   const orderBy = sortBy
     ? sortOrder === 'desc'
-      ? desc(patients[sortBy as keyof typeof patients])
-      : asc(patients[sortBy as keyof typeof patients])
+      ? desc((patients as any)[sortBy])
+      : asc((patients as any)[sortBy])
     : desc(patients.createdAt);
 
   const [patientList, totalResult] = await Promise.all([
@@ -117,7 +120,7 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
 
   const total = totalResult[0]?.count || 0;
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: patientList,
     meta: {
@@ -127,6 +130,7 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
       totalPages: Math.ceil(total / limit),
     },
   });
+  return;
 }));
 
 router.get('/:id', asyncHandler(async (req: AuthRequest, res) => {
@@ -163,7 +167,7 @@ router.get('/:id', asyncHandler(async (req: AuthRequest, res) => {
     db.select().from(vitalSigns).where(eq(vitalSigns.patientId, id)).orderBy(desc(vitalSigns.recordedAt)).limit(50),
   ]);
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: {
       ...patient,
@@ -173,6 +177,7 @@ router.get('/:id', asyncHandler(async (req: AuthRequest, res) => {
       vitalSigns: vitalSignsList,
     },
   });
+  return;
 }));
 
 router.post('/', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -186,9 +191,10 @@ router.post('/', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (re
     dateOfBirth: new Date(data.dateOfBirth),
     emergencyContact: data.emergencyContact ? JSON.stringify(data.emergencyContact) : null,
     userId: req.user!.id,
-  }).returning();
+  } as any).returning();
 
   res.status(201).json({ success: true, data: patient });
+  return;
 }));
 
 router.patch('/:id', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -201,7 +207,7 @@ router.patch('/:id', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async
 
   const [patient] = await db
     .update(patients)
-    .set(updateData)
+    .set(updateData as any)
     .where(eq(patients.id, id))
     .returning();
 
@@ -209,7 +215,8 @@ router.patch('/:id', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async
     throw new AppError(404, 'NOT_FOUND', 'Patient not found');
   }
 
-  res.json({ success: true, data: patient });
+  res.status(200).json({ success: true, data: patient });
+  return;
 }));
 
 router.delete('/:id', requireRole('admin'), asyncHandler(async (req: AuthRequest, res) => {
@@ -217,7 +224,7 @@ router.delete('/:id', requireRole('admin'), asyncHandler(async (req: AuthRequest
 
   const [patient] = await db
     .update(patients)
-    .set({ isActive: false, updatedAt: new Date() })
+    .set({ isActive: false, updatedAt: new Date() } as any)
     .where(eq(patients.id, id))
     .returning();
 
@@ -225,14 +232,16 @@ router.delete('/:id', requireRole('admin'), asyncHandler(async (req: AuthRequest
     throw new AppError(404, 'NOT_FOUND', 'Patient not found');
   }
 
-  res.json({ success: true, message: 'Patient deactivated' });
+  res.status(200).json({ success: true, message: 'Patient deactivated' });
+  return;
 }));
 
 // Allergies
 router.get('/:id/allergies', asyncHandler(async (req: AuthRequest, res) => {
   const { id } = req.params;
   const allergyList = await db.select().from(allergies).where(eq(allergies.patientId, id)).orderBy(desc(allergies.createdAt));
-  res.json({ success: true, data: allergyList });
+  res.status(200).json({ success: true, data: allergyList });
+  return;
 }));
 
 router.post('/:id/allergies', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -243,22 +252,25 @@ router.post('/:id/allergies', requireRole('admin', 'doctor', 'nurse'), asyncHand
     ...data,
     patientId: id,
     diagnosedAt: new Date(data.diagnosedAt),
-  }).returning();
+  } as any).returning();
 
   res.status(201).json({ success: true, data: allergy });
+  return;
 }));
 
 router.delete('/:id/allergies/:allergyId', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
   const { allergyId } = req.params;
   await db.delete(allergies).where(eq(allergies.id, allergyId));
-  res.json({ success: true, message: 'Allergy removed' });
+  res.status(200).json({ success: true, message: 'Allergy removed' });
+  return;
 }));
 
 // Conditions
 router.get('/:id/conditions', asyncHandler(async (req: AuthRequest, res) => {
   const { id } = req.params;
   const conditionList = await db.select().from(conditions).where(eq(conditions.patientId, id)).orderBy(desc(conditions.createdAt));
-  res.json({ success: true, data: conditionList });
+  res.status(200).json({ success: true, data: conditionList });
+  return;
 }));
 
 router.post('/:id/conditions', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -269,9 +281,10 @@ router.post('/:id/conditions', requireRole('admin', 'doctor', 'nurse'), asyncHan
     ...data,
     patientId: id,
     diagnosedAt: new Date(data.diagnosedAt),
-  }).returning();
+  } as any).returning();
 
   res.status(201).json({ success: true, data: condition });
+  return;
 }));
 
 router.patch('/:id/conditions/:conditionId', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -283,7 +296,7 @@ router.patch('/:id/conditions/:conditionId', requireRole('admin', 'doctor', 'nur
 
   const [condition] = await db
     .update(conditions)
-    .set(updateData)
+    .set(updateData as any)
     .where(eq(conditions.id, conditionId))
     .returning();
 
@@ -291,20 +304,23 @@ router.patch('/:id/conditions/:conditionId', requireRole('admin', 'doctor', 'nur
     throw new AppError(404, 'NOT_FOUND', 'Condition not found');
   }
 
-  res.json({ success: true, data: condition });
+  res.status(200).json({ success: true, data: condition });
+  return;
 }));
 
 router.delete('/:id/conditions/:conditionId', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
   const { conditionId } = req.params;
   await db.delete(conditions).where(eq(conditions.id, conditionId));
-  res.json({ success: true, message: 'Condition removed' });
+  res.status(200).json({ success: true, message: 'Condition removed' });
+  return;
 }));
 
 // Medications
 router.get('/:id/medications', asyncHandler(async (req: AuthRequest, res) => {
   const { id } = req.params;
   const medicationList = await db.select().from(medications).where(eq(medications.patientId, id)).orderBy(desc(medications.createdAt));
-  res.json({ success: true, data: medicationList });
+  res.status(200).json({ success: true, data: medicationList });
+  return;
 }));
 
 router.post('/:id/medications', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -316,9 +332,10 @@ router.post('/:id/medications', requireRole('admin', 'doctor', 'nurse'), asyncHa
     patientId: id,
     startDate: new Date(data.startDate),
     endDate: data.endDate ? new Date(data.endDate) : null,
-  }).returning();
+  } as any).returning();
 
   res.status(201).json({ success: true, data: medication });
+  return;
 }));
 
 router.patch('/:id/medications/:medicationId', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -331,7 +348,7 @@ router.patch('/:id/medications/:medicationId', requireRole('admin', 'doctor', 'n
 
   const [medication] = await db
     .update(medications)
-    .set(updateData)
+    .set(updateData as any)
     .where(eq(medications.id, medicationId))
     .returning();
 
@@ -339,13 +356,15 @@ router.patch('/:id/medications/:medicationId', requireRole('admin', 'doctor', 'n
     throw new AppError(404, 'NOT_FOUND', 'Medication not found');
   }
 
-  res.json({ success: true, data: medication });
+  res.status(200).json({ success: true, data: medication });
+  return;
 }));
 
 router.delete('/:id/medications/:medicationId', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
   const { medicationId } = req.params;
   await db.delete(medications).where(eq(medications.id, medicationId));
-  res.json({ success: true, message: 'Medication removed' });
+  res.status(200).json({ success: true, message: 'Medication removed' });
+  return;
 }));
 
 // Vital Signs
@@ -359,6 +378,7 @@ router.get('/:id/vital-signs', asyncHandler(async (req: AuthRequest, res) => {
     .orderBy(desc(vitalSigns.recordedAt))
     .limit(parseInt(limit as string, 10));
   res.json({ success: true, data: vitalSignsList });
+  return;
 }));
 
 router.post('/:id/vital-signs', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -376,9 +396,10 @@ router.post('/:id/vital-signs', requireRole('admin', 'doctor', 'nurse'), asyncHa
     weight: data.weight ? Math.round(data.weight * 10) : null,
     bmi,
     recordedBy: req.user!.name,
-  }).returning();
+  } as any).returning();
 
   res.status(201).json({ success: true, data: vital });
+  return;
 }));
 
 export { router as patientRoutes };

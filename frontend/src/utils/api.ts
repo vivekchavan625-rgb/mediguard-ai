@@ -76,4 +76,7 @@ export interface ApiResponse<T> {
   };
 }
 
+// Helper type for properly typed API responses
+export type ApiResult<T> = ApiResponse<T>;
+
 export default api;

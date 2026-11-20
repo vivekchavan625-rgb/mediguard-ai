@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../utils/api';
+import api, { ApiResponse } from '../utils/api';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/Select';
@@ -54,7 +54,7 @@ export default function AnalyticsPage() {
   const fetchAnalytics = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get<{ data: AnalyticsData }>(`/analytics/overview?timeRange=${timeRange}`);
+      const response = await api.get<ApiResponse<AnalyticsData>>(`/analytics/overview?timeRange=${timeRange}`);
       if (response.data.success && response.data.data) {
         setAnalytics(response.data.data);
       }
@@ -112,7 +112,7 @@ export default function AnalyticsPage() {
           <p className="text-gray-500 dark:text-gray-400 mt-1">Insights into your practice performance</p>
         </div>
         <div className="flex items-center gap-4">
-          <Select value={timeRange} onValueChange={setTimeRange}>
+          <Select value={timeRange} onValueChange={(val) => setTimeRange(val as '7d' | '30d' | '90d' | '1y')}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Time range" />
             </SelectTrigger>

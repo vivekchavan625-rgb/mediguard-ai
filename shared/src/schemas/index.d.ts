@@ -4,13 +4,13 @@ export declare const loginSchema: z.ZodObject<{
     password: z.ZodString;
     rememberMe: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    email: string;
-    password: string;
-    rememberMe?: boolean | undefined;
+    email?: string;
+    password?: string;
+    rememberMe?: boolean;
 }, {
-    email: string;
-    password: string;
-    rememberMe?: boolean | undefined;
+    email?: string;
+    password?: string;
+    rememberMe?: boolean;
 }>;
 export declare const registerSchema: z.ZodEffects<z.ZodObject<{
     email: z.ZodString;
@@ -19,29 +19,29 @@ export declare const registerSchema: z.ZodEffects<z.ZodObject<{
     name: z.ZodString;
     role: z.ZodOptional<z.ZodEnum<["doctor", "nurse", "patient"]>>;
 }, "strip", z.ZodTypeAny, {
-    email: string;
-    name: string;
-    password: string;
-    confirmPassword: string;
-    role?: "doctor" | "nurse" | "patient" | undefined;
+    name?: string;
+    email?: string;
+    role?: "doctor" | "nurse" | "patient";
+    password?: string;
+    confirmPassword?: string;
 }, {
-    email: string;
-    name: string;
-    password: string;
-    confirmPassword: string;
-    role?: "doctor" | "nurse" | "patient" | undefined;
+    name?: string;
+    email?: string;
+    role?: "doctor" | "nurse" | "patient";
+    password?: string;
+    confirmPassword?: string;
 }>, {
-    email: string;
-    name: string;
-    password: string;
-    confirmPassword: string;
-    role?: "doctor" | "nurse" | "patient" | undefined;
+    name?: string;
+    email?: string;
+    role?: "doctor" | "nurse" | "patient";
+    password?: string;
+    confirmPassword?: string;
 }, {
-    email: string;
-    name: string;
-    password: string;
-    confirmPassword: string;
-    role?: "doctor" | "nurse" | "patient" | undefined;
+    name?: string;
+    email?: string;
+    role?: "doctor" | "nurse" | "patient";
+    password?: string;
+    confirmPassword?: string;
 }>;
 export declare const patientSchema: z.ZodObject<{
     firstName: z.ZodString;
@@ -56,45 +56,45 @@ export declare const patientSchema: z.ZodObject<{
         phone: z.ZodString;
         email: z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>;
     }, "strip", z.ZodTypeAny, {
-        name: string;
-        phone: string;
-        relationship: string;
-        email?: string | undefined;
+        name?: string;
+        email?: string;
+        phone?: string;
+        relationship?: string;
     }, {
-        name: string;
-        phone: string;
-        relationship: string;
-        email?: string | undefined;
+        name?: string;
+        email?: string;
+        phone?: string;
+        relationship?: string;
     }>>;
     bloodType: z.ZodOptional<z.ZodEnum<["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]>>;
 }, "strip", z.ZodTypeAny, {
-    gender: "male" | "female" | "other" | "prefer_not_to_say";
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string;
-    phone?: string | undefined;
-    address?: string | undefined;
+    gender?: "male" | "female" | "other" | "prefer_not_to_say";
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: string;
+    phone?: string;
+    address?: string;
     emergencyContact?: {
-        name: string;
-        phone: string;
-        relationship: string;
-        email?: string | undefined;
-    } | undefined;
-    bloodType?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-" | undefined;
+        name?: string;
+        email?: string;
+        phone?: string;
+        relationship?: string;
+    };
+    bloodType?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
 }, {
-    gender: "male" | "female" | "other" | "prefer_not_to_say";
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string;
-    phone?: string | undefined;
-    address?: string | undefined;
+    gender?: "male" | "female" | "other" | "prefer_not_to_say";
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: string;
+    phone?: string;
+    address?: string;
     emergencyContact?: {
-        name: string;
-        phone: string;
-        relationship: string;
-        email?: string | undefined;
-    } | undefined;
-    bloodType?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-" | undefined;
+        name?: string;
+        email?: string;
+        phone?: string;
+        relationship?: string;
+    };
+    bloodType?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
 }>;
 export declare const vitalSignsSchema: z.ZodObject<{
     heartRate: z.ZodOptional<z.ZodNumber>;
@@ -106,23 +106,23 @@ export declare const vitalSignsSchema: z.ZodObject<{
     weight: z.ZodOptional<z.ZodNumber>;
     height: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    temperature?: number | undefined;
-    weight?: number | undefined;
-    height?: number | undefined;
-    heartRate?: number | undefined;
-    bloodPressureSystolic?: number | undefined;
-    bloodPressureDiastolic?: number | undefined;
-    respiratoryRate?: number | undefined;
-    oxygenSaturation?: number | undefined;
+    heartRate?: number;
+    bloodPressureSystolic?: number;
+    bloodPressureDiastolic?: number;
+    temperature?: number;
+    respiratoryRate?: number;
+    oxygenSaturation?: number;
+    weight?: number;
+    height?: number;
 }, {
-    temperature?: number | undefined;
-    weight?: number | undefined;
-    height?: number | undefined;
-    heartRate?: number | undefined;
-    bloodPressureSystolic?: number | undefined;
-    bloodPressureDiastolic?: number | undefined;
-    respiratoryRate?: number | undefined;
-    oxygenSaturation?: number | undefined;
+    heartRate?: number;
+    bloodPressureSystolic?: number;
+    bloodPressureDiastolic?: number;
+    temperature?: number;
+    respiratoryRate?: number;
+    oxygenSaturation?: number;
+    weight?: number;
+    height?: number;
 }>;
 export declare const medicationSchema: z.ZodObject<{
     name: z.ZodString;
@@ -134,23 +134,23 @@ export declare const medicationSchema: z.ZodObject<{
     prescribedBy: z.ZodString;
     notes: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    name: string;
-    dosage: string;
-    frequency: string;
-    route: "oral" | "topical" | "injection" | "inhalation" | "intravenous" | "subcutaneous";
-    startDate: string;
-    prescribedBy: string;
-    notes?: string | undefined;
-    endDate?: string | undefined;
+    route?: "oral" | "topical" | "injection" | "inhalation" | "intravenous" | "subcutaneous";
+    name?: string;
+    notes?: string;
+    dosage?: string;
+    frequency?: string;
+    startDate?: string;
+    endDate?: string;
+    prescribedBy?: string;
 }, {
-    name: string;
-    dosage: string;
-    frequency: string;
-    route: "oral" | "topical" | "injection" | "inhalation" | "intravenous" | "subcutaneous";
-    startDate: string;
-    prescribedBy: string;
-    notes?: string | undefined;
-    endDate?: string | undefined;
+    route?: "oral" | "topical" | "injection" | "inhalation" | "intravenous" | "subcutaneous";
+    name?: string;
+    notes?: string;
+    dosage?: string;
+    frequency?: string;
+    startDate?: string;
+    endDate?: string;
+    prescribedBy?: string;
 }>;
 export declare const allergySchema: z.ZodObject<{
     allergen: z.ZodString;
@@ -158,15 +158,15 @@ export declare const allergySchema: z.ZodObject<{
     reaction: z.ZodString;
     diagnosedAt: z.ZodEffects<z.ZodString, string, string>;
 }, "strip", z.ZodTypeAny, {
-    allergen: string;
-    severity: "mild" | "moderate" | "severe" | "life_threatening";
-    reaction: string;
-    diagnosedAt: string;
+    allergen?: string;
+    severity?: "mild" | "moderate" | "severe" | "life_threatening";
+    reaction?: string;
+    diagnosedAt?: string;
 }, {
-    allergen: string;
-    severity: "mild" | "moderate" | "severe" | "life_threatening";
-    reaction: string;
-    diagnosedAt: string;
+    allergen?: string;
+    severity?: "mild" | "moderate" | "severe" | "life_threatening";
+    reaction?: string;
+    diagnosedAt?: string;
 }>;
 export declare const conditionSchema: z.ZodObject<{
     name: z.ZodString;
@@ -175,17 +175,17 @@ export declare const conditionSchema: z.ZodObject<{
     diagnosedAt: z.ZodEffects<z.ZodString, string, string>;
     notes: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    name: string;
-    status: "active" | "resolved" | "chronic" | "in_remission";
-    diagnosedAt: string;
-    notes?: string | undefined;
-    icd10Code?: string | undefined;
+    name?: string;
+    diagnosedAt?: string;
+    icd10Code?: string;
+    status?: "active" | "resolved" | "chronic" | "in_remission";
+    notes?: string;
 }, {
-    name: string;
-    status: "active" | "resolved" | "chronic" | "in_remission";
-    diagnosedAt: string;
-    notes?: string | undefined;
-    icd10Code?: string | undefined;
+    name?: string;
+    diagnosedAt?: string;
+    icd10Code?: string;
+    status?: "active" | "resolved" | "chronic" | "in_remission";
+    notes?: string;
 }>;
 export declare const appointmentSchema: z.ZodObject<{
     patientId: z.ZodString;
@@ -195,19 +195,19 @@ export declare const appointmentSchema: z.ZodObject<{
     type: z.ZodEnum<["consultation", "follow_up", "emergency", "routine_checkup", "procedure"]>;
     notes: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    duration: number;
-    type: "consultation" | "follow_up" | "emergency" | "routine_checkup" | "procedure";
-    patientId: string;
-    doctorId: string;
-    scheduledAt: string;
-    notes?: string | undefined;
+    patientId?: string;
+    notes?: string;
+    doctorId?: string;
+    scheduledAt?: string;
+    duration?: number;
+    type?: "consultation" | "follow_up" | "emergency" | "routine_checkup" | "procedure";
 }, {
-    duration: number;
-    type: "consultation" | "follow_up" | "emergency" | "routine_checkup" | "procedure";
-    patientId: string;
-    doctorId: string;
-    scheduledAt: string;
-    notes?: string | undefined;
+    patientId?: string;
+    notes?: string;
+    doctorId?: string;
+    scheduledAt?: string;
+    duration?: number;
+    type?: "consultation" | "follow_up" | "emergency" | "routine_checkup" | "procedure";
 }>;
 export declare const medicalRecordSchema: z.ZodObject<{
     patientId: z.ZodString;
@@ -217,48 +217,69 @@ export declare const medicalRecordSchema: z.ZodObject<{
     title: z.ZodString;
     content: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    type: "consultation_note" | "lab_result" | "imaging" | "prescription" | "referral" | "discharge_summary" | "operative_note";
-    title: string;
-    content: string;
-    patientId: string;
-    doctorId: string;
-    appointmentId?: string | undefined;
+    patientId?: string;
+    doctorId?: string;
+    type?: "consultation_note" | "lab_result" | "imaging" | "prescription" | "referral" | "discharge_summary" | "operative_note";
+    appointmentId?: string;
+    title?: string;
+    content?: string;
 }, {
-    type: "consultation_note" | "lab_result" | "imaging" | "prescription" | "referral" | "discharge_summary" | "operative_note";
-    title: string;
-    content: string;
-    patientId: string;
-    doctorId: string;
-    appointmentId?: string | undefined;
+    patientId?: string;
+    doctorId?: string;
+    type?: "consultation_note" | "lab_result" | "imaging" | "prescription" | "referral" | "discharge_summary" | "operative_note";
+    appointmentId?: string;
+    title?: string;
+    content?: string;
 }>;
 export declare const aiAnalysisSchema: z.ZodObject<{
     patientId: z.ZodString;
     type: z.ZodEnum<["diagnosis_assistance", "risk_assessment", "treatment_recommendation", "drug_interaction_check", "vital_signs_anomaly"]>;
     input: z.ZodRecord<z.ZodString, z.ZodUnknown>;
 }, "strip", z.ZodTypeAny, {
-    type: "diagnosis_assistance" | "risk_assessment" | "treatment_recommendation" | "drug_interaction_check" | "vital_signs_anomaly";
-    input: Record<string, unknown>;
-    patientId: string;
+    patientId?: string;
+    type?: "diagnosis_assistance" | "risk_assessment" | "treatment_recommendation" | "drug_interaction_check" | "vital_signs_anomaly";
+    input?: Record<string, unknown>;
 }, {
-    type: "diagnosis_assistance" | "risk_assessment" | "treatment_recommendation" | "drug_interaction_check" | "vital_signs_anomaly";
-    input: Record<string, unknown>;
-    patientId: string;
+    patientId?: string;
+    type?: "diagnosis_assistance" | "risk_assessment" | "treatment_recommendation" | "drug_interaction_check" | "vital_signs_anomaly";
+    input?: Record<string, unknown>;
 }>;
 export declare const paginationSchema: z.ZodObject<{
     page: z.ZodDefault<z.ZodNumber>;
     limit: z.ZodDefault<z.ZodNumber>;
     sortBy: z.ZodOptional<z.ZodString>;
     sortOrder: z.ZodOptional<z.ZodEnum<["asc", "desc"]>>;
+    patientId: z.ZodOptional<z.ZodString>;
+    type: z.ZodOptional<z.ZodString>;
+    status: z.ZodOptional<z.ZodString>;
+    startDate: z.ZodOptional<z.ZodString>;
+    endDate: z.ZodOptional<z.ZodString>;
+    doctorId: z.ZodOptional<z.ZodString>;
+    search: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    page: number;
-    limit: number;
-    sortBy?: string | undefined;
-    sortOrder?: "asc" | "desc" | undefined;
+    patientId?: string;
+    status?: string;
+    startDate?: string;
+    endDate?: string;
+    doctorId?: string;
+    type?: string;
+    search?: string;
+    limit?: number;
+    page?: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
 }, {
-    page?: number | undefined;
-    limit?: number | undefined;
-    sortBy?: string | undefined;
-    sortOrder?: "asc" | "desc" | undefined;
+    patientId?: string;
+    status?: string;
+    startDate?: string;
+    endDate?: string;
+    doctorId?: string;
+    type?: string;
+    search?: string;
+    limit?: number;
+    page?: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
 }>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;

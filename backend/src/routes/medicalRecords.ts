@@ -37,13 +37,13 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
   const { page, limit, sortBy, sortOrder, patientId, type, doctorId } = paginationSchema.parse(req.query);
   const offset = (page - 1) * limit;
 
-  let whereClause = sql`1=1`;
+  let whereClause: any = sql`1=1`;
 
   if (patientId) {
     whereClause = and(whereClause, eq(medicalRecords.patientId, patientId))!;
   }
   if (type) {
-    whereClause = and(whereClause, eq(medicalRecords.type, type))!;
+    whereClause = and(whereClause, eq(medicalRecords.type, type as any))!;
   }
   if (doctorId) {
     whereClause = and(whereClause, eq(medicalRecords.doctorId, doctorId))!;
@@ -60,8 +60,8 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
 
   const orderBy = sortBy
     ? sortOrder === 'desc'
-      ? desc(medicalRecords[sortBy as keyof typeof medicalRecords])
-      : asc(medicalRecords[sortBy as keyof typeof medicalRecords])
+      ? desc((medicalRecords as any)[sortBy])
+      : asc((medicalRecords as any)[sortBy])
     : desc(medicalRecords.createdAt);
 
   const [recordList, totalResult] = await Promise.all([
@@ -101,7 +101,7 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
 
   const total = totalResult[0]?.count || 0;
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: recordList,
     meta: {
@@ -111,6 +111,7 @@ router.get('/', asyncHandler(async (req: AuthRequest, res) => {
       totalPages: Math.ceil(total / limit),
     },
   });
+  return;
 }));
 
 router.get('/:id', asyncHandler(async (req: AuthRequest, res) => {
@@ -157,7 +158,8 @@ router.get('/:id', asyncHandler(async (req: AuthRequest, res) => {
     throw new AppError(404, 'NOT_FOUND', 'Medical record not found');
   }
 
-  res.json({ success: true, data: record });
+  res.status(200).json({ success: true, data: record });
+  return;
 }));
 
 router.post('/', requireRole('admin', 'doctor'), asyncHandler(async (req: AuthRequest, res) => {
@@ -167,9 +169,10 @@ router.post('/', requireRole('admin', 'doctor'), asyncHandler(async (req: AuthRe
     ...data,
     doctorId: req.user!.id,
     attachments: data.attachments || [],
-  }).returning();
+  } as any).returning();
 
   res.status(201).json({ success: true, data: record });
+  return;
 }));
 
 router.patch('/:id', requireRole('admin', 'doctor'), asyncHandler(async (req: AuthRequest, res) => {
@@ -186,7 +189,8 @@ router.patch('/:id', requireRole('admin', 'doctor'), asyncHandler(async (req: Au
     throw new AppError(404, 'NOT_FOUND', 'Medical record not found');
   }
 
-  res.json({ success: true, data: record });
+  res.status(200).json({ success: true, data: record });
+  return;
 }));
 
 router.delete('/:id', requireRole('admin'), asyncHandler(async (req: AuthRequest, res) => {
@@ -194,7 +198,8 @@ router.delete('/:id', requireRole('admin'), asyncHandler(async (req: AuthRequest
 
   await db.delete(medicalRecords).where(eq(medicalRecords.id, id));
 
-  res.json({ success: true, message: 'Medical record deleted' });
+  res.status(200).json({ success: true, message: 'Medical record deleted' });
+  return;
 }));
 
 export { router as medicalRecordRoutes };

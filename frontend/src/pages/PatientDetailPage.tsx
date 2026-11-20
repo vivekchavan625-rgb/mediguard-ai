@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import api from '../utils/api';
+import api, { ApiResponse } from '../utils/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
@@ -135,7 +135,7 @@ export default function PatientDetailPage() {
     if (!id) return;
     try {
       setIsLoading(true);
-      const response = await api.get<{ data: Patient }>(`/patients/${id}`);
+      const response = await api.get<ApiResponse<Patient>>(`/patients/${id}`);
       if (response.data.success && response.data.data) {
         setPatient(response.data.data);
       }
@@ -149,7 +149,7 @@ export default function PatientDetailPage() {
   const fetchVitals = async () => {
     if (!id) return;
     try {
-      const response = await api.get<{ data: VitalSign[] }>(`/patients/${id}/vitals`);
+      const response = await api.get<ApiResponse<VitalSign[]>>(`/patients/${id}/vitals`);
       if (response.data.success && response.data.data) {
         setVitals(response.data.data);
       }
@@ -161,7 +161,7 @@ export default function PatientDetailPage() {
   const fetchMedications = async () => {
     if (!id) return;
     try {
-      const response = await api.get<{ data: Medication[] }>(`/patients/${id}/medications`);
+      const response = await api.get<ApiResponse<Medication[]>>(`/patients/${id}/medications`);
       if (response.data.success && response.data.data) {
         setMedications(response.data.data);
       }
@@ -173,7 +173,7 @@ export default function PatientDetailPage() {
   const fetchAllergies = async () => {
     if (!id) return;
     try {
-      const response = await api.get<{ data: Allergy[] }>(`/patients/${id}/allergies`);
+      const response = await api.get<ApiResponse<Allergy[]>>(`/patients/${id}/allergies`);
       if (response.data.success && response.data.data) {
         setAllergies(response.data.data);
       }
@@ -185,7 +185,7 @@ export default function PatientDetailPage() {
   const fetchConditions = async () => {
     if (!id) return;
     try {
-      const response = await api.get<{ data: Condition[] }>(`/patients/${id}/conditions`);
+      const response = await api.get<ApiResponse<Condition[]>>(`/patients/${id}/conditions`);
       if (response.data.success && response.data.data) {
         setConditions(response.data.data);
       }
@@ -197,7 +197,7 @@ export default function PatientDetailPage() {
   const fetchAppointments = async () => {
     if (!id) return;
     try {
-      const response = await api.get<{ data: Appointment[] }>(`/patients/${id}/appointments`);
+      const response = await api.get<ApiResponse<Appointment[]>>(`/patients/${id}/appointments`);
       if (response.data.success && response.data.data) {
         setAppointments(response.data.data);
       }
@@ -209,7 +209,7 @@ export default function PatientDetailPage() {
   const fetchRecords = async () => {
     if (!id) return;
     try {
-      const response = await api.get<{ data: MedicalRecord[] }>(`/patients/${id}/medical-records`);
+      const response = await api.get<ApiResponse<MedicalRecord[]>>(`/patients/${id}/medical-records`);
       if (response.data.success && response.data.data) {
         setRecords(response.data.data);
       }
@@ -230,7 +230,7 @@ export default function PatientDetailPage() {
 
   const handleAddVital = async (data: z.infer<typeof vitalSignsSchema>) => {
     try {
-      const response = await api.post<{ data: VitalSign }>(`/patients/${id}/vitals`, data);
+      const response = await api.post<ApiResponse<VitalSign>>(`/patients/${id}/vitals`, data);
       if (response.data.success) {
         setShowVitalModal(false);
         fetchVitals();
@@ -242,7 +242,7 @@ export default function PatientDetailPage() {
 
   const handleAddMedication = async (data: z.infer<typeof medicationSchema>) => {
     try {
-      const response = await api.post<{ data: Medication }>(`/patients/${id}/medications`, data);
+      const response = await api.post<ApiResponse<Medication>>(`/patients/${id}/medications`, data);
       if (response.data.success) {
         setShowMedicationModal(false);
         fetchMedications();
@@ -254,7 +254,7 @@ export default function PatientDetailPage() {
 
   const handleAddAllergy = async (data: z.infer<typeof allergySchema>) => {
     try {
-      const response = await api.post<{ data: Allergy }>(`/patients/${id}/allergies`, data);
+      const response = await api.post<ApiResponse<Allergy>>(`/patients/${id}/allergies`, data);
       if (response.data.success) {
         setShowAllergyModal(false);
         fetchAllergies();
@@ -266,7 +266,7 @@ export default function PatientDetailPage() {
 
   const handleAddCondition = async (data: z.infer<typeof conditionSchema>) => {
     try {
-      const response = await api.post<{ data: Condition }>(`/patients/${id}/conditions`, data);
+      const response = await api.post<ApiResponse<Condition>>(`/patients/${id}/conditions`, data);
       if (response.data.success) {
         setShowConditionModal(false);
         fetchConditions();
@@ -533,9 +533,9 @@ export default function PatientDetailPage() {
                             <p className="text-sm text-gray-500 dark:text-gray-400">Reaction: {allergy.reaction}</p>
                           </div>
                           <Badge variant={
-                            allergy.severity === 'life_threatening' ? 'destructive' :
+                            allergy.severity === 'life_threatening' ? 'danger' :
                             allergy.severity === 'severe' ? 'warning' :
-                            allergy.severity === 'moderate' ? 'default' : 'secondary'
+                            allergy.severity === 'moderate' ? 'default' : 'info'
                           }>
                             {allergy.severity.replace('_', ' ')}
                           </Badge>
@@ -705,7 +705,7 @@ function MedicationsTab({ medications, onAdd, patientId, onRefresh }: { medicati
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{med.endDate ? formatDate(med.endDate) : '—'}</td>
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{med.prescribedBy}</td>
                     <td className="px-6 py-4">
-                      <Badge variant={med.status === 'active' ? 'success' : med.status === 'discontinued' ? 'destructive' : 'default'}>
+                      <Badge variant={med.status === 'active' ? 'success' : med.status === 'discontinued' ? 'danger' : 'default'}>
                         {med.status}
                       </Badge>
                     </td>
@@ -723,10 +723,10 @@ function MedicationsTab({ medications, onAdd, patientId, onRefresh }: { medicati
 function AllergiesTab({ allergies, onAdd, patientId, onRefresh }: { allergies: Allergy[]; onAdd: () => void; patientId: string; onRefresh: () => void }) {
   const getSeverityVariant = (severity: string) => {
     switch (severity) {
-      case 'life_threatening': return 'destructive';
+      case 'life_threatening': return 'danger';
       case 'severe': return 'warning';
       case 'moderate': return 'default';
-      default: return 'secondary';
+      default: return 'info';
     }
   };
 
@@ -773,7 +773,7 @@ function ConditionsTab({ conditions, onAdd, patientId, onRefresh }: { conditions
       case 'active': return 'default';
       case 'chronic': return 'warning';
       case 'resolved': return 'success';
-      case 'in_remission': return 'secondary';
+      case 'in_remission': return 'info';
       default: return 'default';
     }
   };
@@ -800,7 +800,7 @@ function ConditionsTab({ conditions, onAdd, patientId, onRefresh }: { conditions
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-gray-900 dark:text-white">{condition.name}</p>
                       {condition.icd10Code && (
-                        <Badge variant="secondary">{condition.icd10Code}</Badge>
+                        <Badge variant="default">{condition.icd10Code}</Badge>
                       )}
                     </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Diagnosed: {formatDate(condition.diagnosedAt)}</p>
@@ -824,8 +824,8 @@ function AppointmentsTab({ appointments, onAdd, patientId, onRefresh }: { appoin
     switch (status) {
       case 'scheduled': return 'default';
       case 'confirmed': return 'success';
-      case 'completed': return 'secondary';
-      case 'cancelled': return 'destructive';
+      case 'completed': return 'danger';
+      case 'cancelled': return 'danger';
       case 'no_show': return 'warning';
       default: return 'default';
     }
@@ -890,7 +890,7 @@ function RecordsTab({ records, onAdd, patientId, onRefresh }: { records: Medical
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-gray-900 dark:text-white">{record.title}</p>
-                      <Badge variant="secondary">{record.type.replace('_', ' ')}</Badge>
+                      <Badge variant="default">{record.type.replace('_', ' ')}</Badge>
                     </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{formatDateTime(record.createdAt)}</p>
                     {record.doctor && <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Dr. {record.doctor.name}</p>}
@@ -910,7 +910,7 @@ function RecordsTab({ records, onAdd, patientId, onRefresh }: { records: Medical
 function VitalModal({ onClose, onSubmit, isLoading }: { onClose: () => void; onSubmit: (data: z.infer<typeof vitalSignsSchema>) => Promise<void>; isLoading: boolean }) {
   const { register, handleSubmit, formState: { errors } } = useForm<z.infer<typeof vitalSignsSchema>>({
     resolver: zodResolver(vitalSignsSchema),
-    defaultValues: { recordedAt: new Date().toISOString().slice(0, 16) },
+    defaultValues: {},
   });
 
   return (
@@ -939,7 +939,6 @@ function VitalModal({ onClose, onSubmit, isLoading }: { onClose: () => void; onS
             <Input {...register('weight')} type="number" step="0.1" label="Weight (kg)" placeholder="70" error={errors.weight?.message} disabled={isLoading} />
             <Input {...register('height')} type="number" step="0.1" label="Height (cm)" placeholder="175" error={errors.height?.message} disabled={isLoading} />
           </div>
-          <Input {...register('notes')} label="Notes" placeholder="Additional notes..." error={errors.notes?.message} disabled={isLoading} />
           <div className="flex justify-end gap-3 border-t border-gray-200 dark:border-gray-700 pt-6">
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>Cancel</Button>
             <Button type="submit" isLoading={isLoading}>{isLoading ? 'Saving...' : 'Save Vital Signs'}</Button>
@@ -1028,7 +1027,6 @@ function AllergyModal({ onClose, onSubmit, isLoading }: { onClose: () => void; o
             <Input {...register('diagnosedAt')} type="date" label="Diagnosed Date" error={errors.diagnosedAt?.message} disabled={isLoading} />
           </div>
           <Input {...register('reaction')} label="Reaction" placeholder="Hives, swelling" error={errors.reaction?.message} disabled={isLoading} />
-          <Input {...register('notes')} label="Notes" placeholder="Additional notes..." error={errors.notes?.message} disabled={isLoading} />
           <div className="flex justify-end gap-3 border-t border-gray-200 dark:border-gray-700 pt-6">
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>Cancel</Button>
             <Button type="submit" isLoading={isLoading}>{isLoading ? 'Saving...' : 'Save Allergy'}</Button>

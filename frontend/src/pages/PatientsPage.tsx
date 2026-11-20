@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../utils/api';
+import api, { ApiResponse } from '../utils/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
@@ -72,7 +72,7 @@ export default function PatientsPage() {
       if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
       if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder);
 
-      const response = await api.get<{ data: PatientsResponse }>(`/patients?${searchParams.toString()}`);
+      const response = await api.get<ApiResponse<PatientsResponse>>(`/patients?${searchParams.toString()}`);
 
       if (response.data.success && response.data.data) {
         setPatients(response.data.data.data);
@@ -101,7 +101,7 @@ export default function PatientsPage() {
   const handleCreatePatient = async (data: z.infer<typeof patientSchema>) => {
     try {
       setCreating(true);
-      const response = await api.post<{ data: Patient }>('/patients', data);
+      const response = await api.post<ApiResponse<Patient>>('/patients', data);
       if (response.data.success) {
         setShowCreateModal(false);
         reset();

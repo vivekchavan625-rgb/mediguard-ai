@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import api from '../utils/api';
+import api, { ApiResponse } from '../utils/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
@@ -45,7 +45,7 @@ export default function RegisterPage() {
     setError(null);
 
     try {
-      const response = await api.post<{ data: { user: any; accessToken: string; refreshToken: string; expiresIn: number } }>('/auth/register', data);
+      const response = await api.post<ApiResponse<{ user: any; accessToken: string; refreshToken: string; expiresIn: number }>>('/auth/register', data);
 
       if (response.data.success && response.data.data) {
         const { user, accessToken, refreshToken, expiresIn } = response.data.data;

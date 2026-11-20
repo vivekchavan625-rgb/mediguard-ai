@@ -29,7 +29,7 @@ function generateAccessToken(user: { id: string; email: string; name: string; ro
   return jwt.sign(
     { id: user.id, email: user.email, name: user.name, role: user.role },
     config.jwt.secret,
-    { expiresIn: config.jwt.accessExpiresIn }
+    { expiresIn: config.jwt.accessExpiresIn as jwt.SignOptions['expiresIn'] }
   );
 }
 
@@ -45,7 +45,7 @@ async function storeRefreshToken(userId: string, token: string): Promise<void> {
     userId,
     token,
     expiresAt,
-  });
+  } as any);
 }
 
 router.post('/login', asyncHandler(async (req, res) => {
@@ -67,7 +67,7 @@ router.post('/login', asyncHandler(async (req, res) => {
   }
 
   await db.update(users)
-    .set({ lastLoginAt: new Date() })
+    .set({ lastLoginAt: new Date() } as any)
     .where(eq(users.id, user.id));
 
   const accessToken = generateAccessToken({
@@ -80,7 +80,7 @@ router.post('/login', asyncHandler(async (req, res) => {
   const refreshToken = generateRefreshToken();
   await storeRefreshToken(user.id, refreshToken);
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: {
       user: {
@@ -95,6 +95,7 @@ router.post('/login', asyncHandler(async (req, res) => {
       expiresIn: rememberMe ? 60 * 60 * 24 * 7 : 15 * 60,
     },
   });
+  return;
 }));
 
 router.post('/register', asyncHandler(async (req, res) => {
@@ -117,7 +118,7 @@ router.post('/register', asyncHandler(async (req, res) => {
     passwordHash,
     name,
     role: role || 'patient',
-  }).returning();
+  } as any).returning();
 
   const accessToken = generateAccessToken({
     id: user.id,
@@ -143,6 +144,7 @@ router.post('/register', asyncHandler(async (req, res) => {
       expiresIn: 15 * 60,
     },
   });
+  return;
 }));
 
 router.post('/refresh', refreshTokenMiddleware, asyncHandler(async (req: AuthRequest, res) => {
@@ -155,7 +157,7 @@ router.post('/refresh', refreshTokenMiddleware, asyncHandler(async (req: AuthReq
 
   const accessToken = generateAccessToken(req.user!);
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: {
       accessToken,
@@ -163,6 +165,7 @@ router.post('/refresh', refreshTokenMiddleware, asyncHandler(async (req: AuthReq
       expiresIn: 15 * 60,
     },
   });
+  return;
 }));
 
 router.post('/logout', asyncHandler(async (req, res) => {
@@ -172,7 +175,8 @@ router.post('/logout', asyncHandler(async (req, res) => {
     await db.delete(refreshTokens).where(eq(refreshTokens.token, refreshToken));
   }
 
-  res.json({ success: true, message: 'Logged out successfully' });
+  res.status(200).json({ success: true, message: 'Logged out successfully' });
+  return;
 }));
 
 router.get('/me', asyncHandler(async (req: AuthRequest, res) => {
@@ -197,7 +201,8 @@ router.get('/me', asyncHandler(async (req: AuthRequest, res) => {
     throw new AppError(404, 'NOT_FOUND', 'User not found');
   }
 
-  res.json({ success: true, data: user });
+  res.status(200).json({ success: true, data: user });
+  return;
 }));
 
 export { router as authRoutes };

@@ -40,8 +40,8 @@ export default function SymptomAnalyzerPage() {
     setAnalysis(null);
     setQuickCheck(null);
     try {
-      const analyzeResp = await api.post<{ data: AiAnalysisResponse }>('/ai/analyze', data);
-      const quickResp = await api.post<{ data: AiAnalysisResponse }>('/ai/quick-check', data);
+      const analyzeResp = await api.post<ApiResponse<AiAnalysisResponse>>('/ai/analyze', data);
+      const quickResp = await api.post<ApiResponse<AiAnalysisResponse>>('/ai/quick-check', data);
       if (analyzeResp.data.success && quickResp.data.success) {
         setAnalysis(analyzeResp.data.data);
         setQuickCheck(quickResp.data.data);

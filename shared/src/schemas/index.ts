@@ -113,6 +113,13 @@ export const paginationSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(20),
   sortBy: z.string().optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
+  patientId: z.string().uuid().optional(),
+  type: z.string().optional(),
+  status: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  doctorId: z.string().uuid().optional(),
+  search: z.string().optional(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

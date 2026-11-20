@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
-import api from '../utils/api';
+import api, { ApiResponse } from '../utils/api';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Users, Calendar, FileText, Brain, TrendingUp, AlertTriangle } from 'lucide-react';
@@ -49,8 +49,8 @@ export default function DashboardPage() {
     try {
       setIsLoading(true);
       const [statsRes, activityRes] = await Promise.all([
-        api.get<{ data: DashboardStats }>('/analytics/dashboard'),
-        api.get<{ data: RecentActivity[] }>('/analytics/recent-activity'),
+        api.get<ApiResponse<DashboardStats>>('/analytics/dashboard'),
+        api.get<ApiResponse<RecentActivity[]>>('/analytics/recent-activity'),
       ]);
 
       if (statsRes.data.success) setStats(statsRes.data.data!);

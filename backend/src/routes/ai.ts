@@ -3,7 +3,7 @@ import { z } from 'zod';
 import OpenAI from 'openai';
 import { db } from '../db';
 import { aiAnalyses, patients, vitalSigns, medications, conditions, allergies } from '../db/schema';
-import { eq, desc, count } from 'drizzle-orm';
+import { eq, desc, asc, count, sql, and, or } from 'drizzle-orm';
 import { asyncHandler, AppError } from '../middleware/errorHandler';
 import { AuthRequest, requireRole } from '../middleware/auth';
 import { config } from '../config';
@@ -27,7 +27,13 @@ const aiAnalysisSchema = z.object({
   input: z.record(z.unknown()),
 });
 
-async function getPatientContext(patientId: string) {
+async function getPatientContext(patientId: string): Promise<{
+  patient: { age: number; gender: string; bloodType: string | null };
+  vitalSigns: any[];
+  medications: any[];
+  conditions: any[];
+  allergies: any[];
+} | null> {
   const [patient] = await db.select().from(patients).where(eq(patients.id, patientId)).limit(1);
   if (!patient) return null;
 
@@ -51,7 +57,7 @@ async function getPatientContext(patientId: string) {
   };
 }
 
-async function runAIAnalysis(type: string, input: Record<string, unknown>, context: ReturnType<typeof getPatientContext>): Promise<{ result: Record<string, unknown>; confidence: number }> {
+async function runAIAnalysis(type: string, input: Record<string, unknown>, context: Awaited<ReturnType<typeof getPatientContext>>): Promise<{ result: Record<string, unknown>; confidence: number }> {
   const prompts: Record<string, string> = {
     diagnosis_assistance: `Based on the patient information and symptoms provided, suggest potential diagnoses with reasoning. Return JSON with: diagnoses (array of {name, icd10, probability, reasoning}), recommendedTests (array), redFlags (array).`,
     risk_assessment: `Assess the patient's health risks based on their medical history, vital signs, and current conditions. Return JSON with: riskScore (0-100), riskFactors (array), recommendations (array), followUpInterval (string).`,
@@ -105,7 +111,7 @@ router.post('/analyze', requireRole('admin', 'doctor'), asyncHandler(async (req:
       .set({ result, confidence, status: 'completed' })
       .where(eq(aiAnalyses.id, analysis.id));
 
-    res.json({
+    res.status(200).json({
       success: true,
       data: {
         id: analysis.id,
@@ -116,6 +122,7 @@ router.post('/analyze', requireRole('admin', 'doctor'), asyncHandler(async (req:
         createdAt: analysis.createdAt,
       },
     });
+    return;
   } catch (error) {
     await db.update(aiAnalyses)
       .set({ status: 'rejected' })
@@ -134,10 +141,10 @@ router.get('/analyses', asyncHandler(async (req: AuthRequest, res) => {
     whereClause = and(whereClause, eq(aiAnalyses.patientId, patientId))!;
   }
   if (type) {
-    whereClause = and(whereClause, eq(aiAnalyses.type, type))!;
+    whereClause = and(whereClause, eq(aiAnalyses.type, type as any))!;
   }
   if (status) {
-    whereClause = and(whereClause, eq(aiAnalyses.status, status))!;
+    whereClause = and(whereClause, eq(aiAnalyses.status, status as any))!;
   }
 
   if (req.user?.role === 'patient') {
@@ -149,8 +156,8 @@ router.get('/analyses', asyncHandler(async (req: AuthRequest, res) => {
 
   const orderBy = sortBy
     ? sortOrder === 'desc'
-      ? desc(aiAnalyses[sortBy as keyof typeof aiAnalyses])
-      : asc(aiAnalyses[sortBy as keyof typeof aiAnalyses])
+      ? desc(aiAnalyses[sortBy as keyof typeof aiAnalyses] as any)
+      : asc(aiAnalyses[sortBy as keyof typeof aiAnalyses] as any)
     : desc(aiAnalyses.createdAt);
 
   const [analysisList, totalResult] = await Promise.all([
@@ -169,7 +176,7 @@ router.get('/analyses', asyncHandler(async (req: AuthRequest, res) => {
 
   const total = totalResult[0]?.count || 0;
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: analysisList,
     meta: {
@@ -179,6 +186,7 @@ router.get('/analyses', asyncHandler(async (req: AuthRequest, res) => {
       totalPages: Math.ceil(total / limit),
     },
   });
+  return;
 }));
 
 router.get('/analyses/:id', asyncHandler(async (req: AuthRequest, res) => {
@@ -194,7 +202,8 @@ router.get('/analyses/:id', asyncHandler(async (req: AuthRequest, res) => {
     throw new AppError(404, 'NOT_FOUND', 'Analysis not found');
   }
 
-  res.json({ success: true, data: analysis });
+  res.status(200).json({ success: true, data: analysis });
+  return;
 }));
 
 router.post('/analyses/:id/review', requireRole('admin', 'doctor'), asyncHandler(async (req: AuthRequest, res) => {
@@ -210,7 +219,8 @@ router.post('/analyses/:id/review', requireRole('admin', 'doctor'), asyncHandler
     throw new AppError(404, 'NOT_FOUND', 'Analysis not found');
   }
 
-  res.json({ success: true, data: analysis });
+  res.status(200).json({ success: true, data: analysis });
+  return;
 }));
 
 router.post('/quick-check', requireRole('admin', 'doctor', 'nurse'), asyncHandler(async (req: AuthRequest, res) => {
@@ -226,7 +236,7 @@ router.post('/quick-check', requireRole('admin', 'doctor', 'nurse'), asyncHandle
 
   const { result, confidence } = await runAIAnalysis('diagnosis_assistance', { symptoms }, context);
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: {
       type: 'diagnosis_assistance',
@@ -234,6 +244,7 @@ router.post('/quick-check', requireRole('admin', 'doctor', 'nurse'), asyncHandle
       confidence,
     },
   });
+  return;
 }));
 
 export { router as aiRoutes };
