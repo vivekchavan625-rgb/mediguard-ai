@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import api, { ApiResponse } from '../utils/api';
+import { UserRole } from '@mediguard/shared/types';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
@@ -123,6 +124,36 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
               Sign in
             </Button>
+
+            <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Or continue quickly</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setLoading(true);
+                  const demoUser = {
+                    id: 'demo-user-id',
+                    email: 'demo@mediguard.ai',
+                    name: 'Demo Doctor',
+                    role: UserRole.DOCTOR,
+                    avatar: undefined,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                  };
+                  setAuth(demoUser, {
+                    accessToken: 'demo-access-token',
+                    refreshToken: 'demo-refresh-token',
+                    expiresIn: 3600,
+                  });
+                  navigate(from, { replace: true });
+                }}
+                disabled={isLoading}
+              >
+                Continue as Demo User
+              </Button>
+            </div>
           </form>
         </CardContent>
 
