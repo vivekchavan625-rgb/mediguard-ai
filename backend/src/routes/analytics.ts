@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { patients, appointments, medicalRecords, aiAnalyses, vitalSigns, users } from '../db/schema';
+import { patients, appointments, medicalRecords, aiAnalyses, vitalSigns, medications, alerts, users } from '../db/schema';
 import { eq, and, desc, asc, count, sql, gte, lte } from 'drizzle-orm';
 import { asyncHandler } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
@@ -200,6 +200,262 @@ router.get('/ai-performance', asyncHandler(async (req: AuthRequest, res) => {
       averageConfidence: Math.round(avgConfidence[0]?.avgConfidence || 0),
     },
   });
+  return;
+}));
+
+router.get('/recent-activity', asyncHandler(async (req: AuthRequest, res) => {
+  const { startDate, endDate, limit = '10' } = req.query;
+
+  const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const end = endDate ? new Date(endDate as string) : new Date();
+  const limitNum = parseInt(limit as string, 10);
+
+  let patientWhere = sql`1=1`;
+  let appointmentWhere = and(gte(appointments.scheduledAt, start), lte(appointments.scheduledAt, end))!;
+  let recordWhere = and(gte(medicalRecords.createdAt, start), lte(medicalRecords.createdAt, end))!;
+  let vitalsWhere = and(gte(vitalSigns.recordedAt, start), lte(vitalSigns.recordedAt, end))!;
+  let analysesWhere = and(gte(aiAnalyses.createdAt, start), lte(aiAnalyses.createdAt, end))!;
+
+  if (req.user?.role === 'doctor') {
+    appointmentWhere = and(appointmentWhere, eq(appointments.doctorId, req.user.id))!;
+    recordWhere = and(recordWhere, eq(medicalRecords.doctorId, req.user.id))!;
+    vitalsWhere = and(vitalsWhere, eq(vitalSigns.recordedBy, req.user.name))!;
+    analysesWhere = and(analysesWhere, eq(aiAnalyses.reviewedBy, req.user.id))!;
+  } else if (req.user?.role === 'patient') {
+    const [patient] = await db.select().from(patients).where(eq(patients.userId, req.user.id)).limit(1);
+    if (patient) {
+      patientWhere = eq(patients.id, patient.id);
+      appointmentWhere = and(appointmentWhere, eq(appointments.patientId, patient.id))!;
+      recordWhere = and(recordWhere, eq(medicalRecords.patientId, patient.id))!;
+      vitalsWhere = and(vitalsWhere, eq(vitalSigns.patientId, patient.id))!;
+      analysesWhere = and(analysesWhere, eq(aiAnalyses.patientId, patient.id))!;
+    }
+  }
+
+  const [recentAppointments, recentRecords, recentVitals, recentAnalyses] = await Promise.all([
+    db
+      .select({
+        id: appointments.id,
+        type: sql<string>`'appointment'`,
+        title: appointments.type,
+        description: appointments.notes,
+        timestamp: appointments.scheduledAt,
+        patientId: appointments.patientId,
+      })
+      .from(appointments)
+      .where(appointmentWhere)
+      .orderBy(desc(appointments.scheduledAt))
+      .limit(limitNum),
+    db
+      .select({
+        id: medicalRecords.id,
+        type: sql<string>`'medical_record'`,
+        title: medicalRecords.title,
+        description: medicalRecords.type,
+        timestamp: medicalRecords.createdAt,
+        patientId: medicalRecords.patientId,
+      })
+      .from(medicalRecords)
+      .where(recordWhere)
+      .orderBy(desc(medicalRecords.createdAt))
+      .limit(limitNum),
+    db
+      .select({
+        id: vitalSigns.id,
+        type: sql<string>`'vital_signs'`,
+        title: sql<string>`'Vital Signs Recorded'`,
+        description: sql<string>`CONCAT('HR: ', ${vitalSigns.heartRate}, ' BP: ', ${vitalSigns.bloodPressureSystolic}, '/', ${vitalSigns.bloodPressureDiastolic})`,
+        timestamp: vitalSigns.recordedAt,
+        patientId: vitalSigns.patientId,
+      })
+      .from(vitalSigns)
+      .where(vitalsWhere)
+      .orderBy(desc(vitalSigns.recordedAt))
+      .limit(limitNum),
+    db
+      .select({
+        id: aiAnalyses.id,
+        type: sql<string>`'ai_analysis'`,
+        title: aiAnalyses.type,
+        description: sql<string>`CONCAT('Status: ', ${aiAnalyses.status}, ', Confidence: ', ${aiAnalyses.confidence}, '%')`,
+        timestamp: aiAnalyses.createdAt,
+        patientId: aiAnalyses.patientId,
+      })
+      .from(aiAnalyses)
+      .where(analysesWhere)
+      .orderBy(desc(aiAnalyses.createdAt))
+      .limit(limitNum),
+  ]);
+
+  const allActivity = [
+    ...recentAppointments,
+    ...recentRecords,
+    ...recentVitals,
+    ...recentAnalyses,
+  ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, limitNum);
+
+  // Fetch patient names for the activities
+  const patientIds = [...new Set(allActivity.map(a => a.patientId).filter(Boolean))];
+  const patientMap = new Map();
+  if (patientIds.length > 0) {
+    const patientList = await db
+      .select({ id: patients.id, firstName: patients.firstName, lastName: patients.lastName })
+      .from(patients)
+      .where(sql`${patients.id} IN (${sql.join(patientIds.map(id => sql`${id}`), sql`, `)})`);
+    patientList.forEach(p => patientMap.set(p.id, `${p.firstName} ${p.lastName}`));
+  }
+
+  const formattedActivity = allActivity.map(activity => ({
+    id: activity.id,
+    type: activity.type,
+    title: activity.title,
+    description: activity.description,
+    timestamp: activity.timestamp,
+    patientName: activity.patientId ? patientMap.get(activity.patientId) : undefined,
+  }));
+
+  res.status(200).json({ success: true, data: formattedActivity });
+  return;
+}));
+
+router.get('/recent-vitals', asyncHandler(async (req: AuthRequest, res) => {
+  const { patientId, limit = '10' } = req.query;
+  const limitNum = parseInt(limit as string, 10);
+
+  let vitalsWhere = sql`1=1`;
+
+  if (req.user?.role === 'doctor') {
+    vitalsWhere = and(vitalsWhere, eq(vitalSigns.recordedBy, req.user.name))!;
+  } else if (req.user?.role === 'patient') {
+    const [patient] = await db.select().from(patients).where(eq(patients.userId, req.user.id)).limit(1);
+    if (patient) {
+      vitalsWhere = and(vitalsWhere, eq(vitalSigns.patientId, patient.id))!;
+    }
+  } else if (patientId) {
+    vitalsWhere = and(vitalsWhere, eq(vitalSigns.patientId, patientId as string))!;
+  }
+
+  const data = await db
+    .select({
+      id: vitalSigns.id,
+      patientId: vitalSigns.patientId,
+      recordedAt: vitalSigns.recordedAt,
+      heartRate: vitalSigns.heartRate,
+      bloodPressureSystolic: vitalSigns.bloodPressureSystolic,
+      bloodPressureDiastolic: vitalSigns.bloodPressureDiastolic,
+      temperature: vitalSigns.temperature,
+      respiratoryRate: vitalSigns.respiratoryRate,
+      oxygenSaturation: vitalSigns.oxygenSaturation,
+      weight: vitalSigns.weight,
+      height: vitalSigns.height,
+      bmi: vitalSigns.bmi,
+      recordedBy: vitalSigns.recordedBy,
+    })
+    .from(vitalSigns)
+    .where(vitalsWhere)
+    .orderBy(desc(vitalSigns.recordedAt))
+    .limit(limitNum);
+
+  const formattedData = data.map((d) => ({
+    id: d.id,
+    patientId: d.patientId,
+    recordedAt: d.recordedAt,
+    heartRate: d.heartRate,
+    bloodPressureSystolic: d.bloodPressureSystolic,
+    bloodPressureDiastolic: d.bloodPressureDiastolic,
+    temperature: d.temperature ? d.temperature / 10 : null,
+    respiratoryRate: d.respiratoryRate,
+    oxygenSaturation: d.oxygenSaturation,
+    weight: d.weight ? d.weight / 10 : null,
+    height: d.height,
+    bmi: d.bmi ? d.bmi / 10 : null,
+    recordedBy: d.recordedBy,
+  }));
+
+  res.status(200).json({ success: true, data: formattedData });
+  return;
+}));
+
+router.get('/recent-medications', asyncHandler(async (req: AuthRequest, res) => {
+  const { patientId, limit = '10' } = req.query;
+  const limitNum = parseInt(limit as string, 10);
+
+  let medsWhere = and(eq(medications.isActive, true))!;
+
+  if (req.user?.role === 'doctor') {
+    // Doctors see medications they prescribed
+    medsWhere = and(medsWhere, eq(medications.prescribedBy, req.user.name))!;
+  } else if (req.user?.role === 'patient') {
+    const [patient] = await db.select().from(patients).where(eq(patients.userId, req.user.id)).limit(1);
+    if (patient) {
+      medsWhere = and(medsWhere, eq(medications.patientId, patient.id))!;
+    }
+  } else if (patientId) {
+    medsWhere = and(medsWhere, eq(medications.patientId, patientId as string))!;
+  }
+
+  const data = await db
+    .select({
+      id: medications.id,
+      patientId: medications.patientId,
+      name: medications.name,
+      dosage: medications.dosage,
+      frequency: medications.frequency,
+      route: medications.route,
+      startDate: medications.startDate,
+      endDate: medications.endDate,
+      prescribedBy: medications.prescribedBy,
+      notes: medications.notes,
+      isActive: medications.isActive,
+    })
+    .from(medications)
+    .where(medsWhere)
+    .orderBy(desc(medications.createdAt))
+    .limit(limitNum);
+
+  res.status(200).json({ success: true, data });
+  return;
+}));
+
+router.get('/recent-alerts', asyncHandler(async (req: AuthRequest, res) => {
+  const { patientId, limit = '10' } = req.query;
+  const limitNum = parseInt(limit as string, 10);
+
+  let alertsWhere = sql`1=1`;
+
+  if (req.user?.role === 'doctor') {
+    // Doctors see alerts for their patients - need to join through patients
+    // For simplicity, get all unresolved alerts
+    alertsWhere = and(alertsWhere, eq(alerts.isResolved, false))!;
+  } else if (req.user?.role === 'patient') {
+    const [patient] = await db.select().from(patients).where(eq(patients.userId, req.user.id)).limit(1);
+    if (patient) {
+      alertsWhere = and(alertsWhere, eq(alerts.patientId, patient.id))!;
+    }
+  } else if (patientId) {
+    alertsWhere = and(alertsWhere, eq(alerts.patientId, patientId as string))!;
+  }
+
+  const data = await db
+    .select({
+      id: alerts.id,
+      patientId: alerts.patientId,
+      type: alerts.type,
+      severity: alerts.severity,
+      message: alerts.message,
+      details: alerts.details,
+      isResolved: alerts.isResolved,
+      resolvedAt: alerts.resolvedAt,
+      resolvedBy: alerts.resolvedBy,
+      createdAt: alerts.createdAt,
+    })
+    .from(alerts)
+    .where(alertsWhere)
+    .orderBy(desc(alerts.createdAt))
+    .limit(limitNum);
+
+  res.status(200).json({ success: true, data });
   return;
 }));
 

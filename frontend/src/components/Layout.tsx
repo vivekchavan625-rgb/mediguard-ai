@@ -1,6 +1,6 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { LogOut, LayoutDashboard, Users, FileText, BarChart3, Settings, Menu, X, ChevronDown, Shield } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, FileText, BarChart3, Settings, Menu, X, ChevronDown, Shield, Brain } from 'lucide-react';
 import { useState } from 'react';
 
 const navigation = [
@@ -8,6 +8,7 @@ const navigation = [
   { name: 'Patients', href: '/patients', icon: Users },
   { name: 'Records', href: '/medical-records', icon: FileText },
   { name: 'Medication Guard', href: '/medication-guard', icon: Shield },
+  { name: 'Symptom Analyzer', href: '/symptom-analyzer', icon: Brain },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

@@ -25,6 +25,7 @@ export async function initializeDb(): Promise<void> {
     "CREATE TYPE medical_record_type AS ENUM ('consultation_note', 'lab_result', 'imaging', 'prescription', 'referral', 'discharge_summary', 'operative_note')",
     "CREATE TYPE ai_analysis_type AS ENUM ('diagnosis_assistance', 'risk_assessment', 'treatment_recommendation', 'drug_interaction_check', 'vital_signs_anomaly')",
     "CREATE TYPE ai_analysis_status AS ENUM ('pending', 'completed', 'reviewed', 'rejected')",
+    "CREATE TYPE alert_severity AS ENUM ('low', 'medium', 'high', 'critical')",
   ];
 
   for (const sql of enumTypes) {
@@ -161,6 +162,20 @@ export async function initializeDb(): Promise<void> {
       reviewed_by UUID REFERENCES users(id) ON DELETE SET NULL
     );
 
+    CREATE TABLE IF NOT EXISTS alerts (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id UUID NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+      type VARCHAR(100) NOT NULL,
+      severity alert_severity NOT NULL,
+      message TEXT NOT NULL,
+      details JSONB,
+      is_resolved BOOLEAN NOT NULL DEFAULT false,
+      resolved_at TIMESTAMP,
+      resolved_by UUID REFERENCES users(id) ON DELETE SET NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    );
+
     CREATE TABLE IF NOT EXISTS refresh_tokens (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -194,6 +209,9 @@ export async function initializeDb(): Promise<void> {
     CREATE INDEX IF NOT EXISTS ai_analyses_type_idx ON ai_analyses(type);
     CREATE INDEX IF NOT EXISTS ai_analyses_status_idx ON ai_analyses(status);
     CREATE INDEX IF NOT EXISTS refresh_tokens_user_id_idx ON refresh_tokens(user_id);
+    CREATE INDEX IF NOT EXISTS alerts_patient_id_idx ON alerts(patient_id);
+    CREATE INDEX IF NOT EXISTS alerts_severity_idx ON alerts(severity);
+    CREATE INDEX IF NOT EXISTS alerts_resolved_idx ON alerts(is_resolved);
     CREATE INDEX IF NOT EXISTS refresh_tokens_token_idx ON refresh_tokens(token);
   `);
 

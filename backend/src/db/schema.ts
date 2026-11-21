@@ -12,6 +12,7 @@ export const appointmentTypeEnum = pgEnum('appointment_type', ['consultation', '
 export const medicalRecordTypeEnum = pgEnum('medical_record_type', ['consultation_note', 'lab_result', 'imaging', 'prescription', 'referral', 'discharge_summary', 'operative_note']);
 export const aiAnalysisTypeEnum = pgEnum('ai_analysis_type', ['diagnosis_assistance', 'risk_assessment', 'treatment_recommendation', 'drug_interaction_check', 'vital_signs_anomaly']);
 export const aiAnalysisStatusEnum = pgEnum('ai_analysis_status', ['pending', 'completed', 'reviewed', 'rejected']);
+export const alertSeverityEnum = pgEnum('alert_severity', ['low', 'medium', 'high', 'critical']);
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -167,6 +168,24 @@ export const aiAnalyses = pgTable('ai_analyses', {
   statusIdx: index('ai_analyses_status_idx').on(table.status),
 }));
 
+export const alerts = pgTable('alerts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  patientId: uuid('patient_id').notNull().references(() => patients.id, { onDelete: 'cascade' }),
+  type: varchar('type', { length: 100 }).notNull(),
+  severity: alertSeverityEnum('severity').notNull(),
+  message: text('message').notNull(),
+  details: jsonb('details'),
+  isResolved: boolean('is_resolved').notNull().default(false),
+  resolvedAt: timestamp('resolved_at'),
+  resolvedBy: uuid('resolved_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  patientIdIdx: index('alerts_patient_id_idx').on(table.patientId),
+  severityIdx: index('alerts_severity_idx').on(table.severity),
+  resolvedIdx: index('alerts_resolved_idx').on(table.isResolved),
+}));
+
 export const refreshTokens = pgTable('refresh_tokens', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -184,6 +203,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   appointmentsAsDoctor: many(appointments, { relationName: 'doctor' }),
   medicalRecordsAsDoctor: many(medicalRecords, { relationName: 'doctor' }),
   aiAnalysesReviewed: many(aiAnalyses, { relationName: 'reviewer' }),
+  alertsResolved: many(alerts, { relationName: 'alert_resolver' }),
   refreshTokens: many(refreshTokens),
 }));
 
@@ -196,6 +216,7 @@ export const patientsRelations = relations(patients, ({ one, many }) => ({
   appointments: many(appointments),
   medicalRecords: many(medicalRecords),
   aiAnalyses: many(aiAnalyses),
+  alerts: many(alerts),
 }));
 
 export const allergiesRelations = relations(allergies, ({ one }) => ({
@@ -229,6 +250,11 @@ export const medicalRecordsRelations = relations(medicalRecords, ({ one }) => ({
 export const aiAnalysesRelations = relations(aiAnalyses, ({ one }) => ({
   patient: one(patients, { fields: [aiAnalyses.patientId], references: [patients.id] }),
   reviewer: one(users, { fields: [aiAnalyses.reviewedBy], references: [users.id], relationName: 'reviewer' }),
+}));
+
+export const alertsRelations = relations(alerts, ({ one }) => ({
+  patient: one(patients, { fields: [alerts.patientId], references: [patients.id] }),
+  resolver: one(users, { fields: [alerts.resolvedBy], references: [users.id], relationName: 'alert_resolver' }),
 }));
 
 export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
